@@ -120,8 +120,8 @@ function Index() {
     }
   };
 
-  const submitBrief = async () => {
-    setStep(null); user(brief.trim() || "Skipped");
+  const submitBrief = async (text: string) => {
+    setStep(null); setBrief(text); user(text.trim() || "Skipped");
     await say(`All done, ${firstName}! 🎉 I have prepared your official clinic intake sheet below. You can still click anywhere on the sheet to edit or add notes, or download it directly as a PNG image for Dr. Sheeba Khan. Wishing you a speedy recovery!`);
     setStep("done");
   };
@@ -237,8 +237,8 @@ function Index() {
           <Card>
             <textarea value={brief} onChange={(e) => setBrief(e.target.value)} placeholder="e.g. It started after I got caught in the rain two days ago..." rows={3} className="w-full rounded-xl border border-input bg-background px-3 py-2.5 outline-none focus:border-primary" />
             <div className="flex gap-2">
-              <button onClick={() => { setBrief(""); submitBrief(); }} className="flex-1 rounded-xl border border-border bg-card py-2.5 text-sm font-semibold">Skip & Generate Sheet</button>
-              <Primary onClick={submitBrief} className="flex-1">Submit & Generate Sheet</Primary>
+              <button onClick={() => submitBrief("")} className="flex-1 rounded-xl border border-border bg-card py-2.5 text-sm font-semibold">Skip & Generate Sheet</button>
+              <Primary onClick={() => submitBrief(brief)} className="flex-1">Submit & Generate Sheet</Primary>
             </div>
           </Card>
         )}
