@@ -11,6 +11,19 @@ function Ed({ value = "", placeholder, className = "" }: { value?: string; place
   );
 }
 
+function Lined({ rows, placeholder }: { rows: number; placeholder: string }) {
+  return (
+    <div className="relative mt-3" style={{ minHeight: rows * 32 }}>
+      <div aria-hidden className="pointer-events-none absolute inset-0">
+        {Array.from({ length: rows }).map((_, i) => (
+          <div key={i} className="h-8 border-b border-sheet-line" />
+        ))}
+      </div>
+      <Ed placeholder={placeholder} className="relative text-sm leading-8" />
+    </div>
+  );
+}
+
 function Field({ label, value, placeholder }: { label: string; value?: string; placeholder: string }) {
   return (
     <div className="flex items-baseline gap-2 border-b border-sheet-line pb-1">
@@ -66,12 +79,12 @@ export function ClinicSheet({ data }: { data: SheetData }) {
             </div>
           ))}
         </div>
-        <Ed placeholder="Type clinical observations..." className="lined mt-3 min-h-[128px] text-sm" />
+        <Lined rows={4} placeholder="Type clinical observations..." />
       </section>
 
       <section className="mt-5">
         <div className="font-serif text-6xl leading-none">℞</div>
-        <Ed placeholder="Medicines, dosage, tests..." className="lined mt-2 min-h-[288px] text-sm" />
+        <Lined rows={9} placeholder="Medicines, dosage, tests..." />
       </section>
 
       <footer className="mt-10 flex justify-end">
