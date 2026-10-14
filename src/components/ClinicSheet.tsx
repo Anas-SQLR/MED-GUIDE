@@ -3,7 +3,7 @@ export type SheetData = {
   symptoms: { name: string; detail: string }[]; brief: string;
 };
 
-function Ed({ value = "", placeholder, className = "" }: { value?: string; placeholder: string; className?: string }) {
+function Ed({ value = "", placeholder, className = "" }: { value?: string | undefined; placeholder: string; className?: string }) {
   return (
     <div contentEditable suppressContentEditableWarning data-placeholder={placeholder} className={`ed ${className}`}>
       {value}
