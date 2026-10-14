@@ -95,7 +95,7 @@ function Index() {
 
   const askFollow = async (list: string[], i: number) => {
     setChips([]); setFree(""); setFIdx(i);
-    await say(getFollowUp(list[i]).prompt);
+    await say(getFollowUp(list[i] ?? "").prompt);
     setStep("follow");
   };
 
@@ -111,7 +111,7 @@ function Index() {
     setStep(null);
     const detail = [...chips, free.trim()].filter(Boolean).join(", ");
     user(detail || "No extra details");
-    const next = [...answers, { name: allSymptoms[fIdx], detail }];
+    const next = [...answers, { name: allSymptoms[fIdx] ?? "", detail }];
     setAnswers(next);
     if (fIdx + 1 < allSymptoms.length) await askFollow(allSymptoms, fIdx + 1);
     else {
@@ -145,7 +145,7 @@ function Index() {
   };
 
   const sheet: SheetData = { ...details, department: dept?.name ?? "", symptoms: answers, brief: brief.trim() };
-  const fu = step === "follow" ? getFollowUp(allSymptoms[fIdx]) : null;
+  const fu = step === "follow" ? getFollowUp(allSymptoms[fIdx] ?? "") : null;
   const toggle = (arr: string[], v: string) => (arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v]);
 
   return (
