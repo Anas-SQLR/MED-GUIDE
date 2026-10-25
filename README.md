@@ -2,6 +2,8 @@
 
 Build a clean, mobile-responsive web application called "MED GUIDE" — a conversational, human-like Smart Clinic Intake Chatbot and Prescription Sheet Generator
 
+# Made by ANAS ,NIKHIL,SARTHAK,AADEE & NANDINI
+
 
 
 ### 1. APP EXPERIENCE & HUMAN-LIKE CHAT UI
@@ -150,7 +152,7 @@ Example :
 
   - Doctor Name: **Dr. SHEEBA KHAN**
 
-  - Contact: **8225977810**
+  - Contact: **8225977362**
 
   - Date field (auto-filled with today's date, editable)
 
@@ -187,20 +189,6 @@ Example :
 - **Print Sheet Button:** Clean `@media print` styling so only 
 
 the A4 sheet prints.
-
-- **Start New Patient Chat Button:** Resets the chat and clears the sheet.
-
-This project was built with [Lovable](https://lovable.dev).
-
-**Live app**: https://smart-intake-aid.lovable.app
-
-## Build with Lovable
-
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/666a3cdc-6f18-447f-8447-923fa9a807cb).
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
 
 ## Development
 

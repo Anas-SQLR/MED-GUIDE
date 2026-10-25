@@ -1,6 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { Download, Printer, RotateCcw, Send, Stethoscope } from "lucide-react";
+import {
+  Download,
+  Activity,
+  ClipboardPlus,
+  HeartPulse,
+  Printer,
+  RotateCcw,
+  Send,
+  Stethoscope,
+  Syringe,
+  Thermometer,
+} from "lucide-react";
 import { DEPARTMENTS, getFollowUp, type Department } from "@/lib/intake";
 import { ClinicSheet, type SheetData } from "@/components/ClinicSheet";
 
@@ -20,6 +31,7 @@ export const Route = createFileRoute("/")({
 
 type Msg = { id: number; from: "bot" | "user"; text: string };
 type Step = "details" | "dept" | "symptoms" | "follow" | "brief" | "done";
+type RobotMood = "idle" | "listening" | "happy" | "thinking";
 
 let mid = 0;
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -46,16 +58,25 @@ function Index() {
   const [brief, setBrief] = useState("");
   const [sheetKey, setSheetKey] = useState(0);
   const [busy, setBusy] = useState(false);
+  const [robot, setRobot] = useState<{ mood: RobotMood; message: string }>({ mood: "idle", message: "Hello there! Your Med Guide is here." });
   const endRef = useRef<HTMLDivElement>(null);
   const started = useRef(false);
 
+  const react = (mood: RobotMood, message: string) => setRobot({ mood, message });
+
   const say = async (...texts: string[]) => {
+    react("thinking", "Thinking...");
     for (const t of texts) {
       setTyping(true);
       await sleep(550);
       setTyping(false);
       setMsgs((m) => [...m, { id: ++mid, from: "bot", text: t }]);
     }
+    react("happy", "Got it!");
+  };
+  const sayStage = async (caption: string, ...texts: string[]) => {
+    await say(...texts);
+    react("happy", caption);
   };
   const user = (text: string) => setMsgs((m) => [...m, { id: ++mid, from: "user", text }]);
 
@@ -63,9 +84,11 @@ function Index() {
     setMsgs([]); setStep(null); setDetails({ name: "", ageSex: "", contact: "" }); setDept(null);
     setPicked([]); setOtherText(""); setShowOther(false); setFIdx(0); setAnswers([]); setChips([]); setFree(""); setBrief("");
     setSheetKey((k) => k + 1);
-    await say(
-      "Hello! Welcome to Med Guide Clinic. 👋 I’m your virtual clinic assistant, and I’ll help prepare your health summary for Dr. Sheeba Khan so you don't have to wait long.",
-      "To get started, could you please share your **Full Name**, **Age / Sex**, and **Contact Number**?",
+    await sayStage(
+      "Hello there! Your Med Guide is here.",
+      "Hello there! 👋 I'm your Med Guide, here to make getting ready for your visit to Dr. Sheeba Khan feel a little easier.",
+      "We'll have a quick conversation to organize the details you'd like to share with the doctor. This isn't a diagnosis—just a helpful starting point for your visit.",
+      "First, let's put a name to your visit. Please share your **Full Name**, **Age / Sex**, and **Contact Number** below.",
     );
     setStep("details");
   };
@@ -83,19 +106,33 @@ function Index() {
   const submitDetails = async () => {
     setStep(null);
     user([details.name, details.ageSex, details.contact].filter(Boolean).join(" · ") || "(skipped)");
-    await say(`Thank you, ${firstName}! It's nice to meet you. Could you tell me which health department you’d like to visit today? Just tap the option that best matches what you're feeling:`);
+    await sayStage(
+      "Let's find the right starting point.",
+      `Thanks, ${firstName}! It's nice to meet you. Which health department would you like to visit today?`,
+      "Choose the option that feels closest to your concern—or type your own if you don't see a match. No pressure to know the perfect answer.",
+    );
     setStep("dept");
   };
 
   const chooseDept = async (d: Department) => {
     setStep(null); setDept(d); user(`${d.emoji} ${d.name}`);
-    await say(`Got it — I've selected **${d.name}** for you. I’m sorry you aren't feeling your best today. Which of these symptoms are you currently experiencing? *(You can select more than one)*`);
+    await sayStage(
+      "You can choose more than one.",
+      `Okay, **${d.name}** is our starting point. Now let's capture what's been bothering you.`,
+      "Select every symptom that applies. If yours isn't listed, tap **+ Other symptom** and tell me in your own words.",
+    );
     setStep("symptoms");
   };
 
   const askFollow = async (list: string[], i: number) => {
     setChips([]); setFree(""); setFIdx(i);
-    await say(getFollowUp(list[i] ?? "").prompt);
+    const symptom = list[i] ?? "";
+    const prompt = getFollowUp(symptom).prompt;
+    await sayStage(
+      i + 1 < list.length ? `Let's explore ${symptom}.` : "A few helpful details, then we're nearly there.",
+      `Let's zoom in on **${symptom}** for a moment. ${prompt}`,
+      "Pick any details that fit, and feel free to add anything important in the text box.",
+    );
     setStep("follow");
   };
 
@@ -115,14 +152,22 @@ function Index() {
     setAnswers(next);
     if (fIdx + 1 < allSymptoms.length) await askFollow(allSymptoms, fIdx + 1);
     else {
-      await say("Thank you for sharing all of that with me. Before I prepare your clinic sheet for Dr. Sheeba Khan, would you like to briefly describe in your own words how this started or anything else the doctor should know?");
+      await sayStage(
+        "One last optional note.",
+        "Thanks for walking me through that. We're nearly at the finish line!",
+        "Is there anything else you'd like Dr. Sheeba Khan to know—such as when this started or what seems to make it better or worse? You can share a note or skip this step.",
+      );
       setStep("brief");
     }
   };
 
   const submitBrief = async (text: string) => {
     setStep(null); setBrief(text); user(text.trim() || "Skipped");
-    await say(`All done, ${firstName}! 🎉 I have prepared your official clinic intake sheet below. You can still click anywhere on the sheet to edit or add notes, or download it directly as a PNG image for Dr. Sheeba Khan. Wishing you a speedy recovery!`);
+    await sayStage(
+      "Your Med Guide summary is ready!",
+      `All done, ${firstName}! 🎉 Your visit summary is ready below.`,
+      "You can edit the sheet, add notes, or download it as a PNG to bring along to your visit. Thanks for chatting with Med Guide!",
+    );
     setStep("done");
   };
 
@@ -149,7 +194,19 @@ function Index() {
   const toggle = (arr: string[], v: string) => (arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v]);
 
   return (
-    <div className="min-h-screen bg-chat-wall">
+    <div
+      className="intake-page min-h-screen"
+      onPointerDownCapture={() => react("happy", "Yay, nice choice!")}
+      onFocusCapture={() => react("listening", "I'm listening!")}
+    >
+      <div className="medical-stickers" aria-hidden="true">
+        <span className="medical-sticker sticker-stethoscope"><Stethoscope /></span>
+        <span className="medical-sticker sticker-heart"><HeartPulse /></span>
+        <span className="medical-sticker sticker-thermometer"><Thermometer /></span>
+        <span className="medical-sticker sticker-syringe"><Syringe /></span>
+        <span className="medical-sticker sticker-activity"><Activity /></span>
+        <span className="medical-sticker sticker-clipboard"><ClipboardPlus /></span>
+      </div>
       <header className="sticky top-0 z-10 bg-primary text-primary-foreground shadow-md print:hidden">
         <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 py-3">
           <div className="grid h-10 w-10 place-items-center rounded-full bg-primary-foreground/15"><Stethoscope className="h-5 w-5" /></div>
@@ -157,11 +214,12 @@ function Index() {
             <h1 className="font-serif text-xl leading-tight tracking-wide">MED GUIDE</h1>
             <p className="text-xs opacity-80">{typing ? "typing…" : "Virtual clinic assistant · Dr. Sheeba Khan"}</p>
           </div>
+          <RobotBuddy mood={robot.mood} message={robot.message} />
           <button onClick={start} className="flex items-center gap-1 rounded-full bg-primary-foreground/15 px-3 py-1.5 text-xs font-medium"><RotateCcw className="h-3.5 w-3.5" />New</button>
         </div>
       </header>
 
-      <main className="mx-auto max-w-3xl space-y-3 px-3 py-4 print:hidden">
+      <main className="intake-content mx-auto max-w-3xl space-y-3 px-3 py-4 print:hidden">
         {msgs.map((m) => (
           <div key={m.id} className={`msg-in flex ${m.from === "user" ? "justify-end" : "justify-start"}`}>
             <div className={`max-w-[85%] whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-[15px] leading-relaxed shadow-sm ${m.from === "user" ? "rounded-br-sm bg-bubble-user text-bubble-user-foreground" : "rounded-bl-sm bg-bubble-bot text-foreground"}`}>
@@ -246,7 +304,7 @@ function Index() {
       </main>
 
       {step === "done" && (
-        <section className="mx-auto max-w-4xl px-3 pb-16">
+        <section className="intake-content mx-auto max-w-4xl px-3 pb-16">
           <div className="sticky top-16 z-10 mb-4 flex flex-wrap justify-center gap-2 print:hidden">
             <ActionBtn onClick={download} disabled={busy}><Download className="h-4 w-4" />{busy ? "Preparing…" : "Download PNG"}</ActionBtn>
             <ActionBtn onClick={() => window.print()} variant="soft"><Printer className="h-4 w-4" />Print Sheet</ActionBtn>
@@ -255,6 +313,24 @@ function Index() {
           <ClinicSheet key={sheetKey} data={sheet} />
         </section>
       )}
+    </div>
+  );
+}
+
+function RobotBuddy({ mood, message }: { mood: RobotMood; message: string }) {
+  return (
+    <div className="robot-companion" data-mood={mood} role="status" aria-live="polite">
+      <span className="robot-caption hidden sm:block">{message}</span>
+      <span className="robot-figure" aria-hidden="true">
+        <span className="robot-antenna" />
+        <span className="robot-ear robot-ear-left" />
+        <span className="robot-ear robot-ear-right" />
+        <span className="robot-head">
+          <span className="robot-eyes"><i /><i /></span>
+          <span className={`robot-mouth robot-mouth-${mood}`} />
+        </span>
+        <span className="robot-body" />
+      </span>
     </div>
   );
 }

@@ -41,7 +41,7 @@ export function ClinicSheet({ data }: { data: SheetData }) {
         <div>
           <h2 className="font-serif text-3xl tracking-wide sm:text-4xl">MED GUIDE CLINIC</h2>
           <p className="mt-1 text-lg font-bold tracking-wide">Dr. SHEEBA KHAN</p>
-          <p className="text-sm opacity-80">Contact: 8225977810</p>
+          <p className="text-sm opacity-80">Contact: 8225977362</p>
         </div>
         <div className="flex items-baseline gap-2 text-sm">
           <span className="font-semibold">Date:</span>
