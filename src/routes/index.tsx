@@ -12,7 +12,7 @@ import {
   Syringe,
   Thermometer,
 } from "lucide-react";
-import { DEPARTMENTS, getFollowUp, type Department } from "@/lib/intake";
+import { DEPARTMENTS, getFollowUp, getHomeCare, type Department } from "@/lib/intake";
 import { ClinicSheet, type SheetData } from "@/components/ClinicSheet";
 
 export const Route = createFileRoute("/")({
@@ -189,7 +189,7 @@ function Index() {
     }
   };
 
-  const sheet: SheetData = { ...details, department: dept?.name ?? "", symptoms: answers, brief: brief.trim() };
+  const sheet: SheetData = { ...details, department: dept?.name ?? "", symptoms: answers, brief: brief.trim(), homeCare: getHomeCare(answers.map((answer) => answer.name)) };
   const fu = step === "follow" ? getFollowUp(allSymptoms[fIdx] ?? "") : null;
   const toggle = (arr: string[], v: string) => (arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v]);
 

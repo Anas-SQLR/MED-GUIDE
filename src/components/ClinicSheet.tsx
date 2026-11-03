@@ -1,6 +1,7 @@
 export type SheetData = {
   name: string; ageSex: string; contact: string; department: string;
   symptoms: { name: string; detail: string }[]; brief: string;
+  homeCare: { tips: string[]; urgent?: string };
 };
 
 function Ed({ value = "", placeholder, className = "" }: { value?: string | undefined; placeholder: string; className?: string }) {
@@ -90,6 +91,15 @@ export function ClinicSheet({ data }: { data: SheetData }) {
       <footer className="mt-10 flex justify-end">
         <div className="w-64 border-t border-sheet-ink pt-2 text-center text-sm font-semibold">Dr. SHEEBA KHAN — Signature / Stamp</div>
       </footer>
+
+      <section className="mt-6 rounded-md border border-sheet-line p-4">
+        <h3 className="mb-2 text-xs font-bold uppercase tracking-widest">Home Care for Comfort</h3>
+        <ul className="list-disc space-y-1 pl-5 text-sm leading-relaxed">
+          {data.homeCare.tips.map((tip) => <li key={tip}>{tip}</li>)}
+        </ul>
+        {data.homeCare.urgent && <p className="mt-3 text-sm font-medium leading-relaxed">{data.homeCare.urgent}</p>}
+        <p className="mt-2 text-xs leading-relaxed opacity-70">General comfort guidance only. It is not a diagnosis or a substitute for advice from a healthcare professional. For children, pregnancy, allergies, or existing conditions, check with a clinician before trying remedies.</p>
+      </section>
     </div>
   );
 }
