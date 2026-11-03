@@ -1,5 +1,30 @@
 export type Department = { id: string; emoji: string; name: string; desc: string; symptoms: string[] };
 
+export type HomeCare = { tips: string[]; urgent?: string };
+
+/** Conservative comfort measures for a visit summary; these do not diagnose or treat a cause. */
+export function getHomeCare(symptoms: string[]): HomeCare {
+  const all = symptoms.join(" ").toLowerCase();
+  if (/chest pain|chest pressure|shortness of breath|temporary blindness|blurred vision|loss of vision|blood seen|can't bear weight/.test(all)) {
+    return {
+      tips: ["Please do not try to manage this symptom with a home remedy."],
+      urgent: "Seek urgent medical assessment. If symptoms are severe or sudden, contact local emergency services now.",
+    };
+  }
+
+  const tips: string[] = [];
+  const add = (...items: string[]) => items.forEach((item) => { if (!tips.includes(item)) tips.push(item); });
+  if (/fever|high body temperature/.test(all)) add("Rest and drink fluids regularly to avoid dehydration.");
+  if (/cough|cold|runny nose|sore throat|headache/.test(all)) add("Rest and drink fluids. A warm drink may soothe a throat; avoid hot drinks for young children.");
+  if (/back|neck|joint|body pain|heavy legs|stiffness|swelling|injury|fall/.test(all)) add("For mild aches, use gentle movement as tolerated; a wrapped warm or cool pack may help. Avoid putting ice or heat directly on skin.");
+  if (/eye|watering|itching/.test(all)) add("Avoid rubbing the eye and wash your hands. Do not put homemade drops or substances in the eye.");
+  if (/rash|itch|skin|scalp/.test(all)) add("Use a cool, clean compress for comfort and avoid scratching or applying unknown products.");
+  if (/vomit|loose motions/.test(all)) add("Take small, frequent sips of safe fluids; oral rehydration solution can help replace fluid losses.");
+  if (/weakness|fatigue|dizz/.test(all)) add("Rest, drink water if you can, and avoid driving or strenuous activity while dizzy.");
+  if (!tips.length) add("Rest, drink fluids if appropriate, and avoid unverified remedies. Discuss this symptom with a clinician.");
+  return { tips, urgent: "These are comfort measures only, not a diagnosis or treatment. Seek medical care if symptoms worsen, persist, or feel severe." };
+}
+
 export const DEPARTMENTS: Department[] = [
   { id: "eye", emoji: "👁️", name: "Ophthalmology", desc: "For eye care, redness, watering, or vision trouble",
     symptoms: ["Eye inflammation / Redness", "Watering or itching eyes", "Blurred vision", "Temporary blindness"] },
